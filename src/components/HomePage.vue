@@ -23,7 +23,7 @@
 
     <v-section class="ta-center pb-64 pt-96 sm:pt-32">
       <p class="fc-black-400 fs-subheading pb-0 sm:pl-24 sm:pr-24 text-center font-weight-bold" style="font-size: 30px;">
-        Thousands of organizations around the globe use Stack Overflow for Teams
+          Des milliers d'organisations à travers le monde utilisent Stack Overflow  pour collaborer et partager des connaissances en interne.
       </p>
       <v-divider class="my-8"></v-divider>
 
@@ -44,7 +44,7 @@
 
     <v-divider class="my-10"></v-divider>
 
-  
+
     <v-card class="mx-auto" max-width="1200">
   <v-card-title class="headline"></v-card-title>
   <v-divider></v-divider>
@@ -84,86 +84,85 @@
 <v-container class="py-10">
         <v-card class="shadow-lg rounded-lg p-10" max-width="1200px" style="margin: 0 auto;">
           <v-card-title class="text-center">
-            <h2 class="text-2xl font-bold mb-6">Pricing</h2>
+            <h2 class="text-2xl font-bold mb-6">Tarification</h2>
           </v-card-title>
           <v-card-text>
             <v-row justify="center" align="center" class="mb-6">
               <v-col cols="12" md="4">
                 <v-card class="text-card-foreground shadow-lg rounded-lg" min-height="600px">
                   <v-card-title class="text-center py-6">
-                    <h3 class="text-2xl font-semibold leading-none tracking-tight">Free Plan</h3>
+                    <h3 class="text-2xl font-semibold leading-none tracking-tight">Plan Gratuit</h3>
                   </v-card-title>
                   <v-card-text>
                     <div class="flex flex-col gap-4 items-center">
                       <div>
                         <h3 class="text-2xl font-bold">$0</h3>
-                        <p class="text-gray-500">per month</p>
+                        <p class="text-gray-500">par mois</p>
                       </div>
                       <ul class="custom-list">
-                        <li>Access to basic features</li>
-                        <li>Limited number of questions per month</li>
-                        <li>Limited community support</li>
-                        <li>Basic analytics</li>
-                        <li>Access to public Q&A</li>
-                        <li>Standard security features</li>
+                          <li>Accès aux fonctionnalités de base</li>
+                          <li>Nombre limité de questions par mois</li>
+                          <li>Support communautaire limité</li>
+                          <li>Analyses de base</li>
+                          <li>Accès aux questions-réponses publiques</li>
+                          <li>Fonctionnalités de sécurité standard</li>
                       </ul>
                     </div>
                   </v-card-text>
                   <v-card-actions class="justify-center">
-                    <v-btn color="primary" dark class="rounded-full" @click="signUp">Sign Up</v-btn>
+                    <v-btn color="primary" dark class="rounded-full" @click="signUp">S'inscrire</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-col>
               <v-col cols="12" md="4">
                 <v-card class="shadow-lg rounded-lg" style="background: linear-gradient(to right, #2196F3, #9C27B0); color: white;" min-height="600px">
                   <v-card-title class="text-center py-6">
-                    <h3 class="text-2xl font-semibold leading-none tracking-tight">Pro Plan</h3>
+                    <h3 class="text-2xl font-semibold leading-none tracking-tight">Plan Pro</h3>
                   </v-card-title>
                   <v-card-text>
                     <div class="flex flex-col gap-4 items-center">
                       <div>
                         <h3 class="text-2xl font-bold">$9.99</h3>
-                        <p class="text-gray-200">per month</p>
+                        <p class="text-gray-200">par mois</p>
                       </div>
                       <ul class="custom-list" style="color: #E0E0E0;">
-                        <li>Unlimited questions and answers</li>
-                        <li>Priority community support</li>
-                        <li>Access to exclusive content and resources</li>
-                        <li>Advanced analytics</li>
-                        <li>Ad-free experience</li>
-                        <li>Monthly webinars with experts</li>
+                          <li>Questions et réponses illimitées</li>
+                          <li>Support communautaire prioritaire</li>
+                          <li>Accès à du contenu et des ressources exclusifs</li>
+                          <li>Analyses avancées</li>
+                          <li>Expérience sans publicité</li>
+                          <li>Webinaires mensuels avec des experts</li>
                       </ul>
                     </div>
                   </v-card-text>
                   <v-card-actions class="justify-center">
-                    <v-btn color="white" dark class="rounded-full" @click="subscribe">Subscribe</v-btn>
+                    <v-btn color="white" dark class="rounded-full" @click="subscribe">S'abonner</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-col>
               <v-col cols="12" md="4">
                 <v-card class="shadow-lg rounded-lg" style="background: linear-gradient(to right, #4CAF50, #009688); color: white;" min-height="600px">
                   <v-card-title class="text-center py-6">
-                    <h3 class="text-2xl font-semibold leading-none tracking-tight">Enterprise Plan</h3>
+                    <h3 class="text-2xl font-semibold leading-none tracking-tight">Plan Entreprise </h3>
                   </v-card-title>
                   <v-card-text>
                     <div class="flex flex-col gap-4 items-center">
                       <div>
                         <h3 class="text-2xl font-bold">$99.99</h3>
-                        <p class="text-gray-200">per month</p>
+                        <p class="text-gray-200">par mois</p>
                       </div>
                       <ul class="custom-list" style="color: #E0E0E0;">
-                        <li>Dedicated account manager</li>
-                        <li>Custom features and integrations</li>
-                        <li>Advanced analytics and reporting</li>
-                        
-                        <li>24/7 priority support</li>
-                        <li>Access to beta features</li>
-                        <li>Comprehensive security and compliance</li>
+                          <li>Gestionnaire de compte dédié</li>
+                          <li>Fonctionnalités et intégrations personnalisées</li>
+                          <li>Analyses et rapports avancés</li>
+                          <li>Support prioritaire 24/7</li>
+                          <li>Accès aux fonctionnalités en bêta</li>
+                          <li>Sécurité et conformité complètes</li>
                       </ul>
                     </div>
                   </v-card-text>
                   <v-card-actions class="justify-center">
-                    <v-btn color="white" dark class="rounded-full" @click="contactSales">Contact Sales</v-btn>
+                    <v-btn color="white" dark class="rounded-full" @click="contactSales">Contacter le service commercial</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-col>
