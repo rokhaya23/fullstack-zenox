@@ -1,140 +1,269 @@
 <template>
-  <v-container>
-    <v-row class="mb-4">
-      <v-col>
-        <v-row align="center" justify="space-between">
-          <v-col>
-            <h3>7,353,271 Questions sans réponses votées ou acceptées</h3>
-          </v-col>
-          <v-col>
-            <v-btn outlined @click="showFilter = !showFilter">Filtre</v-btn>
-          </v-col>
-          <v-col>
-            <v-btn outlined @click="toggleFilter">Filtre</v-btn>
-          </v-col>
-        </v-row>
-      </v-col>
-    </v-row>
-
-    <v-expand-transition>
-      <v-card v-if="showFilter" class="mb-4">
-        <v-card-text>
-          <v-form @submit.prevent="applyFilter">
-            <v-container>
-              <v-row>
-                <v-col cols="4">
-                  <v-checkbox
-                      v-model="filters.noAnswers"
-                      label="Pas de réponses"
-                  ></v-checkbox>
-                  <v-checkbox
-                      v-model="filters.noAcceptedAnswer"
-                      label="Pas de réponse acceptée"
-                  ></v-checkbox>
-                  <v-checkbox
-                      v-model="filters.bounty"
-                      label="A une prime"
-                  ></v-checkbox>
-                </v-col>
-                <v-col cols="4">
-                  <v-radio-group v-model="sortOrder">
-                    <v-radio label="Nouveau" value="Newest"></v-radio>
-                    <v-radio label="Activité récente" value="RecentActivity"></v-radio>
-                    <v-radio label="Score le plus élevé" value="MostVotes"></v-radio>
-                    <v-radio label="Les plus fréquents" value="MostFrequent"></v-radio>
-                    <v-radio label="La prime se termine bientôt" value="BountyEndingSoon"></v-radio>
-                  </v-radio-group>
-                </v-col>
-                <v-col cols="4">
-                  <v-radio-group v-model="tagMode">
-                    <v-radio label="Mes tags à suivre" value="Watched"></v-radio>
-                    <v-radio label="Les balises suivantes :" value="Specified"></v-radio>
-                  </v-radio-group>
-                  <v-text-field
-                      v-if="tagMode === 'Specified'"
-                      label="par exemple javascript ou python"
-                      v-model="tagQuery"
-                  ></v-text-field>
+  <v-app class="app-background">
+    <v-main>
+      <v-container fluid>
+        <v-card class="pa-5 mt-5">
+          <v-row class="mb-n2" align="center">
+            <!-- Colonne 1 (9/12) pour la liste des questions -->
+            <v-col cols="9">
+              <v-row class="header-row" align="center">
+                <v-col cols="10">
+                  <h1 class="fs-headline">Liste des Questions</h1>
+                  <v-btn color="primary" dark @click="poserQuestion" class="mt-4">
+                    Poser une question
+                  </v-btn>
                 </v-col>
               </v-row>
+
               <v-row>
-                <v-col>
-                  <v-btn type="submit" color="primary">Apply filter</v-btn>
-                  <v-btn @click="saveFilter">Enregistrer le filtre personnalisé</v-btn>
-                  <v-btn @click="toggleFilter">Annuler</v-btn>
+                <v-col cols="12" md="10" lg="10" v-for="(question, index) in questions" :key="index">
+                  <v-card class="pa-5 ma-0 mt-5 question-card">
+                    <div class="icon-background">
+                      <v-icon class="background-icon" large>mdi-comment-question-outline</v-icon>
+                    </div>
+                    <h4 class="question-title" @click="goToAnswer(question.id)" style="cursor: pointer;">{{ question.title }}</h4>
+                    <!-- Affichage des tags -->
+                    <div class="d-flex align-center">
+                      <div>
+                        <v-chip v-for="(theme, index) in parseThemes(question.themes)" :key="index" class="mr-2">
+                          {{ theme }}
+                        </v-chip>
+                      </div>
+                      <!-- Informations supplémentaires -->
+                      <div class="ml-auto">
+                        <v-icon small class="mr-2">mdi-eye</v-icon>{{ question.views }}
+                        <v-icon small class="ml-4 mr-2" @click="likeQuestion(question.id)">mdi-thumb-up</v-icon>{{ question.likes }}
+                        <v-icon small class="ml-4 mr-2">mdi-comment-multiple</v-icon>{{ question.answers }}
+                        <span>{{ question.user }} {{ timeSince(new Date(question.timestamp)) }}</span>
+                      </div>
+                    </div>
+                  </v-card>
                 </v-col>
               </v-row>
-            </v-container>
-          </v-form>
-        </v-card-text>
-      </v-card>
-    </v-expand-transition>
-
-    <v-row>
-      <v-col>
-        <v-card>
-          <v-row no-gutters>
-            <v-col cols="1" class="d-flex flex-column align-items-center justify-center">
-              <v-icon>mdi-thumb-up</v-icon>
-              <div>92</div>
-              <v-icon>mdi-comment-question-outline</v-icon>
-              <div>0</div>
-              <v-icon>mdi-eye</v-icon>
-              <div>6k</div>
             </v-col>
-            <v-col cols="11">
-              <v-card-title>Marching Cubes - générer des trous dans le maillage</v-card-title>
-              <v-card-subtitle>
-                Je travaille sur une implémentation de Marching Cubes dans Unity. Mon code est basé sur le code de Paul Bourke avec beaucoup de modifications. Je vérifie si un bloc à une position est nul, et si c’est le cas, un débogage ...
-              </v-card-subtitle>
+
+            <!-- Colonne 2 (3/12) pour les titres des questions -->
+            <v-col cols="3" class="mb-n2">
+              <v-row class="header-row" align="center">
+                <v-col cols="12">
+                  <h3 class="sidebar-title">Titres des Questions</h3>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12" v-for="(question, index) in questions" :key="'sidebar-' + index" class="sidebar-card">
+                  <h6 class="sidebar-link" @click="goToAnswer(question.id)">{{ question.title }}</h6>
+                </v-col>
+              </v-row>
             </v-col>
           </v-row>
         </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+      </v-container>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
+  name: 'QuestionList',
   data() {
     return {
-      showFilter: false,
-      filters: {
-        noAnswers: false,
-        noAcceptedAnswer: true,
-        bounty: false,
-      },
-      sortOrder: "MostVotes",
-      tagMode: "Specified",
-      tagQuery: "",
+      questions: [] // Initialisation de la liste des questions à un tableau vide
     };
   },
-  methods: {
-    toggleFilter() {
-      this.showFilter = !this.showFilter;
-    },
-    applyFilter() {
-      console.log("Filters applied:", this.filters, this.sortOrder, this.tagMode, this.tagQuery);
-    },
-    saveFilter() {
-      console.log("Custom filter saved");
-    },
-    filterQuestions(type) {
-      console.log("Filtering questions by:", type);
-    },
+  created() {
+    this.fetchQuestions();
   },
+  methods: {
+    async fetchQuestions() {
+      try {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get('http://127.0.0.1:8000/api/questions', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        this.questions = response.data.questions;
+
+        // Appeler la méthode pour récupérer le nombre de vues pour chaque question
+        this.fetchViewCounts();
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          console.error('Erreur 401 : Non autorisé. Veuillez vérifier votre jeton d\'authentification.');
+        } else {
+          console.error('Erreur lors de la récupération des questions :', error);
+        }
+      }
+    },
+    async fetchViewCounts() {
+      try {
+        const token = localStorage.getItem('access_token');
+        // Pour chaque question, récupérer le nombre de vues
+        for (let question of this.questions) {
+          const response = await axios.get(`http://127.0.0.1:8000/api/questions/${question.id}/increment-views`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          question.views = response.data.views; // Mettre à jour views pour la question actuelle
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des nombres de vues :', error);
+      }
+    },
+    async likeQuestion(questionId) {
+      try {
+        const token = localStorage.getItem('access_token');
+        const response = await axios.post(`http://127.0.0.1:8000/api/questions/${questionId}/like`, {}, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        // Mettre à jour le nombre de likes localement après une réponse réussie
+        const question = this.questions.find(q => q.id === questionId);
+        if (question) {
+          question.likes = response.data.likes;
+        }
+      } catch (error) {
+        console.error('Erreur lors de l\'ajout d\'un like :', error);
+      }
+    },
+    parseThemes(themesJson) {
+      try {
+        const themes = JSON.parse(themesJson);
+        return Array.isArray(themes) ? themes : [];
+      } catch (error) {
+        console.error('Erreur lors de la conversion du JSON des thèmes :', error);
+        return [];
+      }
+    },
+    timeSince(date) {
+      const seconds = Math.floor((new Date() - date) / 1000);
+      let interval = Math.floor(seconds / 31536000);
+      if (interval >= 1) {
+        return interval + " an" + (interval > 1 ? 's' : '');
+      }
+      interval = Math.floor(seconds / 2592000);
+      if (interval >= 1) {
+        return interval + " mois";
+      }
+      interval = Math.floor(seconds / 86400);
+      if (interval >= 1) {
+        return interval + " jour" + (interval > 1 ? 's' : '');
+      }
+      interval = Math.floor(seconds / 3600);
+      if (interval >= 1) {
+        return interval + " heure" + (interval > 1 ? 's' : '');
+      }
+      interval = Math.floor(seconds / 60);
+      if (interval >= 1) {
+        return interval + " minute" + (interval > 1 ? 's' : '');
+      }
+      return Math.floor(seconds) + " seconde" + (Math.floor(seconds) > 1 ? 's' : '');
+    },
+    poserQuestion() {
+      this.$router.push('/questionsform');
+    },
+    goToAnswer(questionId) {
+      this.$router.push(`/answers/${questionId}`);
+    }
+  }
 };
 </script>
 
-<style>
-.v-btn-group {
+<style scoped>
+.app-background {
+  background: url('') no-repeat center center fixed;
+  background-size: cover;
+  min-height: 100vh;
+}
+
+.fs-headline {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.sidebar-link {
+  color: #1eb8ff;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.sidebar-link:hover {
+  color: #ff4081;
+}
+
+.header-row {
+  margin-bottom: 20px;
+}
+
+.question-card {
+  width: 100%;
+  margin-bottom: 20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.question-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-card {
+  padding: 10px;
+  background-color: rgba(240, 240, 240, 0.8);
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.question-title {
+  color: #1eb8ff;
+  margin-bottom: 16px;
+}
+
+.d-flex {
   display: flex;
+  align-items: center;
 }
-.v-btn-group .v-btn {
-  margin-right: 8px;
+
+.align-center {
+  align-items: center;
 }
-.v-btn-group .v-btn:last-child {
-  margin-right: 0;
+
+.ml-auto {
+  margin-left: auto;
+}
+
+.icon-background {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  opacity: 0.1;
+}
+
+.background-icon {
+  font-size: 100px;
+  color: #000;
+}
+
+@media (max-width: 960px) {
+  .fs-headline {
+    font-size: 2rem;
+  }
+  .background-icon {
+    font-size: 60px;
+  }
 }
 </style>

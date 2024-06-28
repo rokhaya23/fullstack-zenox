@@ -1,7 +1,6 @@
 <template>
-  <v-card>
-    <v-layout>
-      <v-app-bar app color="white">
+  <v-app id="app">
+      <v-app-bar app color="white" fixed >
         <v-btn href="index.html" text>
           <svg class="logo-abbr" width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect class="svg-logo-rect" width="50" height="50" rx="6" fill="#EB8153"></rect>
@@ -21,8 +20,32 @@
             hide-details
             single-line
         ></v-text-field>
-        <v-btn text @click="loginDialog = true" class="s-topbar--skip-link custom-login-btn">Login</v-btn>
-        <v-btn text @click="signupDialog = true" class="s-topbar--skip-link bg-primary">Sign Up</v-btn>
+        <div>
+    <v-btn
+      v-if="isLoggedIn"
+      text
+      @click="logoutUser"
+      class="s-topbar--skip-link bg-danger"
+    >
+      Logout
+    </v-btn>
+    <template v-else>
+      <v-btn
+        text
+        @click="loginDialog = true"
+        class="s-topbar--skip-link custom-login-btn"
+      >
+        Login
+      </v-btn>
+      <v-btn
+        text
+        @click="signupDialog = true"
+        class="s-topbar--skip-link bg-primary"
+      >
+        Sign Up
+      </v-btn>
+    </template>
+  </div>
 
         <!-- Login Dialog -->
         <v-dialog v-model="loginDialog" max-width="500px">
@@ -39,9 +62,9 @@
             <v-card-title class="text-center">Sign in to your account</v-card-title>
             <v-card-text>
               <v-form @submit.prevent="login">
-                <v-text-field v-model="email" label="Email" type="email" required></v-text-field>
-                <v-text-field v-model="password" label="Password" type="password" required></v-text-field>
-                <v-checkbox v-model="remember" label="Remember my preference"></v-checkbox>
+                <v-text-field v-model="email" label="Login Email" type="email" required></v-text-field>
+                <v-text-field v-model="password" label="Login Password" type="password" required></v-text-field>
+                <!-- <v-checkbox v-model="remember" label="Remember my preference"></v-checkbox> -->
                 <v-btn color="primary" block type="submit">Sign In</v-btn>
               </v-form>
             </v-card-text>
@@ -81,7 +104,7 @@
 
       </v-app-bar>
 
-      <v-navigation-drawer expand-on-hover rail>
+      <v-navigation-drawer app expand-on-hover rail>
         <v-divider></v-divider>
         <v-list density="compact" nav>
           <v-list-item prepend-icon="mdi-home" @click="$router.push({ name: 'home' })">
@@ -89,59 +112,139 @@
               <span class="font-weight-bold">Home</span>
             </template>
           </v-list-item>
-          <v-list-item prepend-icon="mdi-help-circle" @click="$router.push({ name: 'question' })">
+          <v-list-item prepend-icon="mdi-help-circle" @click="$router.push({ name: 'questions' })">
             <template v-slot:title>
               <span class="font-weight-bold">Question</span>
             </template>
           </v-list-item>
-          <v-list-item prepend-icon="mdi-tag" @click="$router.push({ name: 'tag' })">
+          <v-list-item prepend-icon="mdi-tag" @click="$router.push({ name: 'tags' })">
             <template v-slot:title>
               <span class="font-weight-bold">Tag</span>
             </template>
           </v-list-item>
+          <v-list-item prepend-icon="mdi-account" @click="$router.push({ name: 'users' })">
+            <template v-slot:title>
+              <span class="font-weight-bold">User</span>
+            </template>
+          </v-list-item>
+          <v-list-item prepend-icon="mdi-office-building" @click="$router.push({ name: 'profil' })">
+            <template v-slot:title>
+              <span class="font-weight-bold">Profil</span>
+            </template>
+          </v-list-item>
+          
         </v-list>
       </v-navigation-drawer>
 
       <v-main>
+        
         <router-view></router-view>
       </v-main>
-    </v-layout>
-  </v-card>
+      
+    </v-app>  
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
-  name: 'App',
   data() {
     return {
+      loading: false,
+      loginDialog: false,
+      signupDialog: false,
       email: '',
       password: '',
-      remember: false,
       signupName: '',
       signupEmail: '',
       signupPassword: '',
-      loginDialog: false,
-      signupDialog: false,
-      loading: false, // assuming you have a loading state for the search
+      isLoggedIn: false,
     };
   },
+  created() {
+    // Check if user is already logged in
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      this.isLoggedIn = true;
+    }
+  },
   methods: {
-    login() {
-      // Your login logic here
-      console.log('Logging in with', this.email, this.password);
-      // Reset the dialog state
-      this.loginDialog = false;
+    async login() {
+      try {
+        this.loading = true;
+        const response = await axios.post('http://127.0.0.1:8000/api/login', {
+          email: this.email,
+          password: this.password
+        });
+
+        console.log('Response:', response);
+
+        if (response.data.token) {  
+          localStorage.setItem('access_token', response.data.token);
+          this.isLoggedIn = true;
+          console.log('Vous êtes connecté');
+          this.$router.push('/questions');
+        } else {
+          console.log('Échec de la connexion : Jeton non reçu');
+          alert('Échec de la connexion : Jeton non reçu');
+        }
+      } catch (error) {
+        console.error('Erreur lors de la connexion :', error);
+        if (error.response && error.response.status === 401) {
+          alert('Non autorisé : Détails de connexion non valides');
+        } else {
+          alert('Une erreur s\'est produite lors de la connexion');
+        }
+      } finally {
+        this.loading = false;
+        this.loginDialog = false;
+      }
     },
-    register() {
-      // Your registration logic here
-      console.log('Registering with', this.signupName, this.signupEmail, this.signupPassword);
-      // Reset the dialog state
-      this.signupDialog = false;
+    async register() {
+      try {
+        this.loading = true;
+        const response = await axios.post('http://127.0.0.1:8000/api/register', {
+          name: this.signupName,
+          email: this.signupEmail,
+          password: this.signupPassword
+        });
+
+        console.log('Response:', response);
+
+        if (response.data.status === 200) {
+          console.log('Utilisateur enregistré avec succès!', response.data.user);
+          localStorage.setItem('access_token', response.data.token);
+          this.isLoggedIn = true;
+          this.$router.push('/questions');
+        } else {
+          console.log(response.data.message);
+        }
+      } catch (error) {
+        console.error('Erreur lors de l\'inscription :', error.response.data.message);
+        alert('Erreur lors de l\'inscription : ' + error.response.data.message);
+      } finally {
+        this.loading = false;
+        this.signupDialog = false;
+      }
+    },
+    logoutUser() {
+      localStorage.removeItem('access_token');
+      this.isLoggedIn = false;
+      console.log('Vous êtes déconnecté');
+      alert('Vous êtes déconnecté');
+    }
+  },
+  watch: {
+    isLoggedIn(newVal) {
+      if (newVal) {
+        console.log('Connexion réussie');
+      } else {
+        console.log('Déconnexion réussie');
+      }
     }
   }
 };
 </script>
-
 
 <style>
 .logo-abbr, .brand-title {
@@ -155,8 +258,8 @@ export default {
 .search-bar {
   margin-right: 8px;
   width: 90px; /* Réduire la largeur de la barre de recherche */
-
 }
-
-
+#app {
+  background-color: rgb(238, 231, 231) !important ;
+}
 </style>
