@@ -12,7 +12,7 @@
             </v-col>
             <v-col cols="4" class="text-right">
               <!-- Afficher le bouton Ajouter Un Thème selon le rôle de l'utilisateur -->
-              <v-btn @click="dialog = true" class="mt-4" color="primary">Ajouter Un thème</v-btn>
+              <v-btn v-if="userRole.includes('Superviseur')" @click="dialog = true" class="mt-4" color="primary">Ajouter Un thème</v-btn>
             </v-col>
           </v-row>
           <!-- Liste des tags filtrée -->
@@ -67,7 +67,6 @@
         <v-snackbar v-model="errorSnackbar" :timeout="snackbarTimeout" top color="error">
           {{ errorMessage }}
         </v-snackbar>
-
       </v-container>
     </v-main>
   </v-app>
@@ -90,7 +89,6 @@ export default {
         required: value => !!value || 'Required.'
       },
       tagFilter: '',
-      userId: null,
       tags: [], // Utilisation de tags au lieu de theme
       userRole: '',
       successSnackbar: false,
@@ -114,17 +112,8 @@ export default {
     if (!token) {
       window.location.href = 'http://127.0.0.1:8000/api/home'; // Redirige vers la page de connexion si le jeton n'est pas présent
     } else {
-      this.fetchTags(token);
       this.fetchUserRole(token);
     }
-
-    this.userId = localStorage.getItem('user_id');
-
-    // Afficher le bouton Ajouter Un Thème selon le rôle de l'utilisateur
-    if (this.userRole === 'Superviseur') {
-      this.dialog = true;
-    } 
-
   },
   methods: {
     async fetchTags(token) {
@@ -145,30 +134,25 @@ export default {
       }
     },
     async fetchUserRole(token) {
-  try {
-    const response = await axios.get('http://127.0.0.1:8000/api/user-auth', {
-      headers: {
-        Authorization: `Bearer ${token}`
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/user-auth', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        this.userRole = response.data.roles; // Assurez-vous que roles est correctement retourné par votre API
+
+        // Appel à fetchTags après avoir récupéré le rôle
+        this.fetchTags(token);
+      } catch (error) {
+        console.error('Error fetching user role:', error.response ? error.response.data : error.message);
+        if (error.response && error.response.status === 401) {
+          alert('Unauthorized access. Please login again.');
+          localStorage.removeItem('access_token');
+          window.location.href = 'http://127.0.0.1:8000/api/login';
+        }
       }
-    });
-    this.userRole = response.data.roles; // Assurez-vous que roles est correctement retourné par votre API
-
-    // Afficher le bouton Ajouter Un thème selon le rôle de l'utilisateur
-    if (this.userRole.includes('Superviseur')) {
-      this.dialog = true;
-    }
-
-    // Appel à fetchTags après avoir récupéré le rôle
-    this.fetchTags(token);
-  } catch (error) {
-    console.error('Error fetching user role:', error.response ? error.response.data : error.message);
-    if (error.response && error.response.status === 401) {
-      alert('Unauthorized access. Please login again.');
-      localStorage.removeItem('access_token');
-      window.location.href = 'http://127.0.0.1:8000/api/login';
-    }
-  }
-},
+    },
     async addTag() {
       const token = localStorage.getItem('access_token');
       if (this.$refs.form.validate()) {

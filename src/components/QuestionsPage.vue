@@ -3,18 +3,22 @@
     <v-main>
       <v-container fluid>
         <v-card class="pa-5 mt-5">
-          <v-row class="mb-n2" align="center">
+          <!-- En-tête aligné pour les titres des questions et liste des questions -->
+          <v-row class="header-row" align="center">
+            <v-col cols="9">
+              <h1 class="fs-headline">Liste des Questions</h1>
+              <v-btn color="primary" dark @click="poserQuestion" class="mt-4">
+                Poser une question
+              </v-btn>
+            </v-col>
+            <v-col cols="3">
+              <h3 class="sidebar-title">Titres des Questions</h3>
+            </v-col>
+          </v-row>
+
+          <v-row class="mb-n2">
             <!-- Colonne 1 (9/12) pour la liste des questions -->
             <v-col cols="9">
-              <v-row class="header-row" align="center">
-                <v-col cols="10">
-                  <h1 class="fs-headline">Liste des Questions</h1>
-                  <v-btn color="primary" dark @click="poserQuestion" class="mt-4">
-                    Poser une question
-                  </v-btn>
-                </v-col>
-              </v-row>
-
               <v-row>
                 <v-col cols="12" md="10" lg="10" v-for="(question, index) in questions" :key="index">
                   <v-card class="pa-5 ma-0 mt-5 question-card">
@@ -34,7 +38,11 @@
                         <v-icon small class="mr-2">mdi-eye</v-icon>{{ question.views }}
                         <v-icon small class="ml-4 mr-2" @click="likeQuestion(question.id)">mdi-thumb-up</v-icon>{{ question.likes }}
                         <v-icon small class="ml-4 mr-2">mdi-comment-multiple</v-icon>{{ question.answers }}
-                        <span>{{ question.user }} {{ timeSince(new Date(question.timestamp)) }}</span>
+                        <!-- Afficher le nom de l'utilisateur et la date -->
+                        <div>
+                          <span>{{ question.user.name }} {{ '  ,' }}</span>
+                          <span>{{ formatDate(question.created_at) }}</span>
+                        </div>
                       </div>
                     </div>
                   </v-card>
@@ -43,12 +51,7 @@
             </v-col>
 
             <!-- Colonne 2 (3/12) pour les titres des questions -->
-            <v-col cols="3" class="mb-n2">
-              <v-row class="header-row" align="center">
-                <v-col cols="12">
-                  <h3 class="sidebar-title">Titres des Questions</h3>
-                </v-col>
-              </v-row>
+            <v-col cols="3">
               <v-row>
                 <v-col cols="12" v-for="(question, index) in questions" :key="'sidebar-' + index" class="sidebar-card">
                   <h6 class="sidebar-link" @click="goToAnswer(question.id)">{{ question.title }}</h6>
@@ -64,12 +67,13 @@
 
 <script>
 import axios from 'axios';
+import { format } from 'date-fns';
 
 export default {
   name: 'QuestionList',
   data() {
     return {
-      questions: [] // Initialisation de la liste des questions à un tableau vide
+      questions: []
     };
   },
   created() {
@@ -167,7 +171,11 @@ export default {
     },
     goToAnswer(questionId) {
       this.$router.push(`/answers/${questionId}`);
-    }
+    },
+    formatDate(dateString) {
+      // Formater la date en format YYYY-MM-DD HH:MM
+      return format(new Date(dateString), 'yyyy-MM-dd , HH:mm');
+    },
   }
 };
 </script>

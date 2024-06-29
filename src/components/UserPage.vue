@@ -5,11 +5,11 @@
           <v-card class="pa-5 mt-5">
             <h1 class="fs-headline1 mb-6">Users</h1>
             <v-row align="center" justify="center" dense>
-              <v-col cols="12" md="6" v-for="user in users" :key="user.id">
+              <v-col cols="12" md="3" v-for="user in users" :key="user.id">
                 <v-card class="mx-auto" @click="goToUserProfile(user.id)">
                   <v-card-title>
                     <v-avatar left>
-                      <img :src="user.avatar || 'https://cdn.vuetifyjs.com/images/john.jpg'" alt="Avatar">
+                      <img :src="user.avatar || 'https://images.unsplash.com/photo-1524303676975-5989d34c6854?q=80&w=1465&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'" alt="Avatar">
                     </v-avatar>
                     <span>{{ user.name }}</span>
                   </v-card-title>

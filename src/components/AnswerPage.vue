@@ -45,6 +45,9 @@
           <v-list-item v-for="(answer, index) in answers" :key="index">
             <v-card :class="['pa-4 mb-4 answer-card', { 'answered': answer.is_valid }]" >
               <v-list-item-title v-html="answer.body"></v-list-item-title>
+              <div class="answer-details">
+                <p>{{ answer.user.name }} | {{ formatDate(answer.created_at) }}</p>
+              </div>
               <v-btn @click="likeAnswer(answer.id)" color="white" class="mt-2" :class="{ 'liked': answer.liked }" :disabled="answer.liked">
                 <v-icon>mdi-thumb-up-outline</v-icon> {{ answer.likes ? answer.likes.length : 0 }}
               </v-btn>
@@ -62,6 +65,7 @@
 <script>
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import axios from 'axios';
+import { format } from 'date-fns';
 
 export default {
   name: 'AnswerPage',
@@ -75,11 +79,11 @@ export default {
       questionTitle: '',
       questionBody: '',
       likeCount: 0,
-      isQuestionLiked: false, // Ajout de l'état pour les likes de la question
-      answers: [], // Tableau pour stocker les réponses
-      submitMessage: '', // Message de soumission
-      submitMessageType: 'success', // Type de message par défaut
-      isSupervisor: false // Détermine si l'utilisateur est superviseur
+      isQuestionLiked: false,
+      answers: [],
+      submitMessage: '',
+      submitMessageType: 'success',
+      isSupervisor: false 
     };
   },
   computed: {
@@ -95,7 +99,7 @@ export default {
   },
   mounted() {
     this.fetchQuestion();
-    this.checkUserRoles(); // Vérifiez le rôle de l'utilisateur
+    this.checkUserRoles(); 
   },
   methods: {
     fetchQuestion() {
@@ -260,10 +264,26 @@ export default {
       .catch(error => {
           console.error('Erreur lors de la vérification des rôles de l\'utilisateur :', error);
       });
-    }
+    },
+    formatDate(dateString) {
+      // Formater la date en format YYYY-MM-DD HH:MM
+      return format(new Date(dateString), 'yyyy-MM-dd , HH:mm');
+    },
+    getUserDisplayName(answer) {
+  console.log('Answer object:', answer);
+  
+  if (answer && answer.user && answer.user.name) {
+    return answer.user.name;
+  } else {
+    return "Auteur inconnu";
+  }
+}
+
   }
 }
 </script>
+
+
 
 <style scoped>
 .app-background {
@@ -331,5 +351,11 @@ export default {
 
 .answered {
   border-left: 5px solid green;
+}
+
+.answer-details {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #666;
 }
 </style>
